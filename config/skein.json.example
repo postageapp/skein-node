@@ -1,0 +1,13 @@
+{
+  "defaults": {
+    "username": "guest",
+    "password": "guest",
+    "host": "localhost"
+  },
+  "development": {
+    "namespace": "skein_dev"
+  },
+  "test": {
+    "namespace": "skein_test"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "test": {
+    "username": "example_username",
+    "password": "example_password",
+    "host": "example_host"
+  }
+}

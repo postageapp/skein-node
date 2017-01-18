@@ -1,0 +1,35 @@
+{
+  "name": "skein",
+  "version": "0.1.0",
+  "description": "Client library for doing JSON-RPC over RabbitMQ/AMQP",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/postageapp/skein-node.git"
+  },
+  "keywords": [
+    "amqp",
+    "rabbitmq",
+    "jsonrpc",
+    "json"
+  ],
+  "author": "Scott Tadman <tadman@postageapp.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/postageapp/skein-node/issues"
+  },
+  "homepage": "https://github.com/postageapp/skein-node#readme",
+  "devDependencies": {
+    "amqplib": "^0.5.1",
+    "chai": "^3.5.0",
+    "mocha": "^3.2.0"
+  },
+  "dependencies": {
+    "bluebird": "^3.4.7",
+    "commander": "^2.9.0",
+    "merge": "^1.2.0"
+  }
+}
