@@ -27,7 +27,7 @@ describe('Config', () => {
 
     assert.ok(config);
 
-    assert.equal(config.username, 'example_username');
+    assert.equal(config.username, 'default_username');
     assert.equal(config.password, 'example_password');
     assert.equal(config.host, 'example_host');
   });

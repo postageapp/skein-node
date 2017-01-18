@@ -1,9 +1,22 @@
 #!/usr/bin/env node
 
+const Skein = require('../index');
+
 const program = require('commander');
 
 program
-  .version(require('../package.json').version)
   .option('-n, --count [n]', 'Number of iterations to run')
-  .parse(process.argv);
+  .version(require('../package.json').version);
+
+program
+  .command('config')
+  .action(() => {
+    var config = new Skein.Config();
+
+    console.log(config);
+
+    console.log(config.uri());
+  });
+
+program.parse(process.argv);
 

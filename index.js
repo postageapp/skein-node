@@ -1,8 +1,8 @@
 // == Imports ===============================================================
 
-class Config = require('./lib/config');
-class Client = require('./lib/client');
-class Handler = require('./lib/handler');
+const Config = require('./lib/config');
+const Client = require('./lib/client');
+const Handler = require('./lib/handler');
 
 // == Exports ===============================================================
 
