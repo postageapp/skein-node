@@ -1,13 +1,12 @@
 // == Imports ===============================================================
 
-const Config = require('./lib/config');
-const Client = require('./lib/client');
-const Handler = require('./lib/handler');
-
 // == Exports ===============================================================
 
 module.exports = {
-  Client: Client,
-  Handler: Handler,
-  Config: Config
+  Config: require('./lib/config'),
+  Connected: require('./lib/connected'),
+  Client: require('./lib/client'),
+  Handler: require('./lib/handler'),
+  Publisher: require('./lib/publisher'),
+  Subscriber: require('./lib/subscriber')
 };

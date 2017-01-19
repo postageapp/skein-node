@@ -1,0 +1,5 @@
+--require test/helpers
+--recursive
+-R spec
+--timeout 2000
+--slow 300
