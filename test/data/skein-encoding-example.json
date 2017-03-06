@@ -1,0 +1,11 @@
+{
+  "defaults" : {
+    "username": "User Name",
+    "password": "%&pas$word"
+  },
+  "test": {
+    "host": "example_host.example.net",
+    "port": 65380,
+    "vhost": "/vhostN"
+  }
+}
