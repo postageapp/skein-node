@@ -4,15 +4,11 @@ const Client = require('../lib/client');
 
 const Worker = require('../lib/worker');
 
+const EchoWorker = require('./examples/echo_worker');
+
 // == Constants =============================================================
 
 // == Support ===============================================================
-
-class DemoWorker extends Worker {
-  echo(value) {
-    return value;
-  }
-}
 
 // == Tests =================================================================
 
@@ -20,13 +16,13 @@ describe('Worker', () => {
   it('can be created with defaults', () => {
     var client = new Client();
 
-    var worker = new DemoWorker(null, 'test_exchange', client);
+    var worker = new EchoWorker('test_echo_worker', 'test_exchange', client);
     var rpc;
 
     return worker.init.then(() => {
       assert.ok(worker);
 
-      rpc = client.rpc('test_exchange');
+      rpc = client.rpc('test_exchange', 'test_echo_worker');
 
       return rpc.init;
     }).then(() => {

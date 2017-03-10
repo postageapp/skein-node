@@ -1,11 +1,17 @@
 #!/usr/bin/env node
 
-const Skein = require('../index');
+// == Imports ===============================================================
 
+const uuid = require('uuid/v4');
 const program = require('commander');
+
+const RPC = require('../lib/rpc');
+
+// == Main ==================================================================
 
 program
   .option('-n, --count [n]', 'Number of iterations to run')
+  .option('-q, --queue [queue]', 'Name of queue to publish to')
   .version(require('../package.json').version);
 
 program
@@ -19,3 +25,19 @@ program
   });
 
 program.parse(process.argv);
+
+switch (program.args[0]) {
+  case 'echo':
+    var rpc = new RPC(program.exchange, program.queue);
+
+    rpc.init.then(() => {
+      var value = uuid();
+
+      rpc.echo(value).then(reply => {
+        if (reply === value) {
+          console.log('Success');
+        }
+      });
+    });
+    break;
+}
