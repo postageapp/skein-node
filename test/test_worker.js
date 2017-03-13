@@ -11,6 +11,7 @@ const Worker = require('../lib/worker');
 const json = require('../lib/json');
 
 const EchoWorker = require('./examples/echo_worker');
+const ErrorWorker = require('./examples/error_worker');
 
 // == Constants =============================================================
 
@@ -25,18 +26,12 @@ describe('Worker', () => {
     var client = new Client();
 
     var worker = new EchoWorker('test_echo_worker', exchange, client);
-    var rpc;
+    var rpc = client.rpc(exchange, 'test_echo_worker');
 
-    return worker.init.then(() => {
-      assert.ok(worker);
-
-      rpc = client.rpc(exchange, 'test_echo_worker');
-
-      return rpc.init;
-    }).then(() => {
-      return rpc.echo('with test data').then(reply => {
-        assert.equal(reply, 'with test data');
-      })
+    return Promise.all([ worker.init, rpc.init ]).then(() => {
+      return rpc.echo('with test data');
+    }).then(reply => {
+      assert.equal(reply, 'with test data');
     });
   });
 
@@ -46,17 +41,8 @@ describe('Worker', () => {
     var replyQueue = uuid();
     var messageId = uuid();
 
-    return new Promise((resolve, reject) => {
-      Promise.all([ connected.init, worker.init ]).then(() => {
-        return connected.channel.assertQueue(replyQueue, {
-          exclusive: true,
-          autoDelete: true
-        });
-      }).then(() => {
-        return connected.channel.consume(replyQueue, (msg) => {
-          resolve(msg);
-        });
-      }).then(() => {
+    return Promise.all([ connected.init, worker.init ]).then(() => {
+      return connected.consumeAsPromise(replyQueue, () => {
         return connected.channel.publish(
           '',
           'test_worker',
@@ -74,6 +60,7 @@ describe('Worker', () => {
 
       assert.equal(reply.error.code, -32700);
       assert.equal(reply.error.message, 'Invalid JSON data');
+      assert.equal(reply.id, messageId);
     });
   });
 
@@ -83,17 +70,8 @@ describe('Worker', () => {
     var replyQueue = uuid();
     var messageId = uuid();
 
-    return new Promise((resolve, reject) => {
-      Promise.all([ connected.init, worker.init ]).then(() => {
-        return connected.channel.assertQueue(replyQueue, {
-          exclusive: true,
-          autoDelete: true
-        });
-      }).then(() => {
-        return connected.channel.consume(replyQueue, (msg) => {
-          resolve(msg);
-        });
-      }).then(() => {
+    return Promise.all([ connected.init, worker.init ]).then(() => {
+      return connected.consumeAsPromise(replyQueue, () => {
         return connected.publishAsJson(
           '',
           'test_worker',
@@ -110,6 +88,7 @@ describe('Worker', () => {
 
       assert.equal(reply.error.code, -32600);
       assert.equal(reply.error.message, 'Invalid request: Missing or invalid "jsonrpc" property');
+      assert.equal(reply.id, messageId);
     });
   });
 
@@ -119,17 +98,8 @@ describe('Worker', () => {
     var replyQueue = uuid();
     var messageId = uuid();
 
-    return new Promise((resolve, reject) => {
-      Promise.all([ connected.init, worker.init ]).then(() => {
-        return connected.channel.assertQueue(replyQueue, {
-          exclusive: true,
-          autoDelete: true
-        });
-      }).then(() => {
-        return connected.channel.consume(replyQueue, (msg) => {
-          resolve(msg);
-        });
-      }).then(() => {
+    return Promise.all([ connected.init, worker.init ]).then(() => {
+      return connected.consumeAsPromise(replyQueue, () => {
         return connected.publishAsJson(
           '',
           'test_worker',
@@ -148,6 +118,38 @@ describe('Worker', () => {
 
       assert.equal(reply.error.code, -32600);
       assert.equal(reply.error.message, 'Invalid request: Missing or invalid "method" property');
+      assert.equal(reply.id, messageId);
+    });
+  });
+
+  it('catches errors triggered within the worker code', () => {
+    var connected = new Connected();
+    var worker = new ErrorWorker('test_error_worker', exchange);
+    var replyQueue = uuid();
+    var messageId = uuid();
+
+    return Promise.all([ connected.init, worker.init ]).then(() => {
+      return connected.consumeAsPromise(replyQueue, () => {
+        return connected.publishAsJson(
+          '',
+          'test_error_worker',
+          {
+            "jsonrpc": "2.0",
+            "id": messageId,
+            "method": "error"
+          },
+          {
+            messageId: messageId,
+            replyTo: replyQueue
+          }
+        );
+      });
+    }).then(msg => {
+      var reply = json.fromBuffer(msg.content);
+
+      assert.equal(reply.error.code, -32603);
+      assert.equal(reply.error.message, 'Internal error when handling "error"');
+      assert.equal(reply.id, messageId);
     });
   });
 });
