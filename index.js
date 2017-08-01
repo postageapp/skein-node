@@ -8,5 +8,7 @@ module.exports = {
   Client: require('./lib/client'),
   Handler: require('./lib/handler'),
   Publisher: require('./lib/publisher'),
-  Subscriber: require('./lib/subscriber')
+  RPC: require('./lib/rpc'),
+  Subscriber: require('./lib/subscriber'),
+  Worker: require('./lib/worker')
 };
