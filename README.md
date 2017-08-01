@@ -7,11 +7,11 @@ This is a JSON-RPC library for [RabbitMQ](https://www.rabbitmq.com) and other
 
 Installation should be simple with NPM:
 
-    npm install skein --save
+    npm install skein-rpc --save
 
 Once installed, using it in a client application is simple:
 
-    const Skein = require('skein');
+    const Skein = require('skein-rpc');
 
     var client = Skein.client();
 

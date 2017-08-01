@@ -23,15 +23,15 @@
   },
   "homepage": "https://github.com/postageapp/skein-node#readme",
   "devDependencies": {
-    "chai": "^3.5.0",
-    "mocha": "^3.2.0"
+    "chai": "^4.1.0",
+    "mocha": "^3.5.0"
   },
   "dependencies": {
     "amqplib": "^0.5.1",
     "bluebird": "^3.5.0",
-    "commander": "^2.9.0",
+    "commander": "^2.11.0",
     "merge": "^1.2.0",
     "sprintf": "^0.1.5",
-    "uuid": "^3.0.1"
+    "uuid": "^3.1.0"
   }
 }
