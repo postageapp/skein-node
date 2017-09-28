@@ -25,7 +25,7 @@ describe('Worker', () => {
   it('can be created with a simple subclass (EchoWorker)', () => {
     var client = new Client();
 
-    var worker = new EchoWorker('test_echo_worker', exchange, client);
+    var worker = client.worker('test_echo_worker', exchange, client, EchoWorker);
     var rpc = client.rpc(exchange, 'test_echo_worker');
 
     return Promise.all([ worker.init, rpc.init ]).then(() => {
