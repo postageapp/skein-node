@@ -16,11 +16,12 @@ const WritableArray = require('./support/writable_array');
 describe('Conduit', () => {
   describe('Readable', () => {
     it('can be initialized with a valid Connected object', async () => {
+      const streamName = 'q-readable-test';
       var connected = new Connected();
 
       await connected.init;
 
-      var readable = new Readable(connected, 'test-queue');
+      var readable = new Readable(connected, streamName);
       var readableData = helpers.eventCounter(readable, 'data');
       var buffer = new WritableArray();
 
@@ -28,7 +29,7 @@ describe('Conduit', () => {
 
       readable.pipe(buffer);
 
-      connected.publishAsJson('', 'test-queue', { test: true });
+      connected.publishAsJson('', streamName, { test: true });
 
       await readableData;
 
@@ -44,12 +45,16 @@ describe('Conduit', () => {
 
   describe('Writable', () => {
     it('can be initialized with a valid Connected object', async () => {
+      const streamName = 'q-writable-test';
       var connected = new Connected();
 
       await connected.init;
 
-      var writable = new Writable(connected, 'test-queue');
-      var readable = new Readable(connected, 'test-queue');
+      await connected.assertQueue(streamName);
+
+      var writable = new Writable(connected, streamName);
+      var readable = new Readable(connected, streamName);
+
       var readableData = helpers.eventCounter(readable, 'data');
       var buffer = new WritableArray();
 
