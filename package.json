@@ -1,6 +1,6 @@
 {
   "name": "skein-rpc",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Client library for doing JSON-RPC over RabbitMQ/AMQP",
   "main": "index.js",
   "scripts": {
