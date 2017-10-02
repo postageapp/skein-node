@@ -17,9 +17,7 @@ describe('Conduit', () => {
   describe('Readable', () => {
     it('can be initialized with a valid Connected object', async () => {
       const streamName = 'q-readable-test';
-      var connected = new Connected();
-
-      await connected.init;
+      var connected = await Connected.open();
 
       var readable = new Readable(connected, streamName);
       var readableData = helpers.eventCounter(readable, 'data');
@@ -46,9 +44,7 @@ describe('Conduit', () => {
   describe('Writable', () => {
     it('can be initialized with a valid Connected object', async () => {
       const streamName = 'q-writable-test';
-      var connected = new Connected();
-
-      await connected.init;
+      var connected = await Connected.open();
 
       await connected.assertQueue(streamName);
 

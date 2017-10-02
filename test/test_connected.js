@@ -15,19 +15,23 @@ const { WritableArray } = require('./support');
 // == Tests =================================================================
 
 describe('Connected', () => {
-  it('can provide a default configuration', async () => {
-    var connected = new Connected();
+  describe('open()', () => {
+    it('will permit waiting for full initialization', async() => {
+      var connected = await Connected.open();
 
-    await connected.init;
+      assert.ok(connected.channel);
+    });
+  });
+
+  it('can provide a default configuration', async () => {
+    var connected = await Connected.open();
 
     assert.ok(connected.channel);
   });
 
   it('can create queues', async () => {
     const queueName = 'q-connected-create-queues';
-    var connected = new Connected();
-
-    await connected.init;
+    var connected = await Connected.open();
 
     await connected.assertQueue(queueName);
 
@@ -36,9 +40,7 @@ describe('Connected', () => {
 
   it('provides a simple stream interface for reading', async () => {
     const streamName = 'q-connected-read-stream';
-    var connected = new Connected();
-
-    await connected.init;
+    var connected = await Connected.open();
 
     await connected.assertQueue(streamName);
 
@@ -61,29 +63,8 @@ describe('Connected', () => {
 
   it('provides a simple stream interface for writing', async () => {
     const streamName = 'q-connected-write-stream';
-    var connected = new Connected();
-
-    await connected.init;
-
-    // await connected.assertQueue(streamName);
-
-    // var buffer = new WritableArray();
-    // var readableData = helpers.eventCounter(readable, 'data');
-
-    // var readStream = connected.readStream(streamName);
-    // readStream.pipe(buffer);
-
-    // var writeStream = connected.writeStream(streamName);
-    // writeStream.write({ stream: 'write' });
-
-    // await readableData;
-
-    // assert.equal(1, buffer.length);
-
-    // var read = buffer.pop();
-
-    // assert.deepEqual({ stream: 'write' }, read);
-
+    var connected = await Connected.open();
+    
     await connected.assertQueue(streamName);
 
     var writable = await connected.writeStream(streamName);
