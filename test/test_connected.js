@@ -29,13 +29,16 @@ describe('Connected', () => {
     assert.ok(connected.channel);
   });
 
-  it('can create queues', async () => {
+  it('can create, check and delete queues', async () => {
     const queueName = 'q-connected-create-queues';
     var connected = await Connected.open();
 
     await connected.assertQueue(queueName);
 
     assert.ok(connected.checkQueue(queueName));
+
+    // Unconsumed queues are not auto-deleted, so a force-delete is required.
+    connected.deleteQueue(queueName);
   })
 
   it('provides a simple stream interface for reading', async () => {
@@ -64,7 +67,7 @@ describe('Connected', () => {
   it('provides a simple stream interface for writing', async () => {
     const streamName = 'q-connected-write-stream';
     var connected = await Connected.open();
-    
+
     await connected.assertQueue(streamName);
 
     var writable = await connected.writeStream(streamName);

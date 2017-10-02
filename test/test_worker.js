@@ -22,74 +22,78 @@ const exchange = 'test_exchange';
 // == Tests =================================================================
 
 describe('Worker', () => {
-  it('can be created with a simple subclass (EchoWorker)', () => {
+  it('can be created with a simple subclass (EchoWorker)', async () => {
     var client = new Client();
 
     var worker = client.worker('test_echo_worker', exchange, client, EchoWorker);
     var rpc = client.rpc(exchange, 'test_echo_worker');
 
-    return Promise.all([ worker.init, rpc.init ]).then(() => {
-      return rpc.echo('with test data');
-    }).then(reply => {
-      assert.equal(reply, 'with test data');
-    });
+    await Promise.all([ worker.init, rpc.init ]);
+
+    var reply = await rpc.echo('with test data');
+
+    assert.equal(reply, 'with test data');
   });
 
-  it('can deal with malformed JSON data', () => {
+  it('can deal with malformed JSON data', async () => {
+    const queueName = 'q-worker-malformed-json';
     var connected = new Connected();
-    var worker = new Worker('test_worker', exchange);
+    var worker = new Worker(queueName, exchange);
     var replyQueue = uuid();
     var messageId = uuid();
 
-    return Promise.all([ connected.init, worker.init ]).then(() => {
-      return connected.consumeAsPromise(replyQueue, () => {
-        return connected.channel.publish(
-          '',
-          'test_worker',
-          Buffer.from('{ "jsonrpc": "2.0", ***', 'utf8'),
-          {
-            contentType: 'application/json',
-            contentEncoding: 'utf8',
-            messageId: messageId,
-            replyTo: replyQueue
-          }
-        );
-      });
-    }).then(msg => {
-      var reply = json.fromBuffer(msg.content);
+    await Promise.all([ connected.init, worker.init ]);
 
-      assert.equal(reply.error.code, -32700);
-      assert.equal(reply.error.message, 'Invalid JSON data');
-      assert.equal(reply.id, messageId);
-    });
+    var response = connected.consumeAsPromise(replyQueue);
+
+    connected.channel.publish(
+      '',
+      queueName,
+      Buffer.from('{ "jsonrpc": "2.0", ***', 'utf8'),
+      {
+        contentType: 'application/json',
+        contentEncoding: 'utf8',
+        messageId: messageId,
+        replyTo: replyQueue
+      }
+    );
+
+    var msg = await response;
+
+    var reply = json.fromBuffer(msg.content);
+
+    assert.equal(reply.error.code, -32700);
+    assert.equal(reply.error.message, 'Invalid JSON data');
+    assert.equal(reply.id, messageId);
   });
 
-  it('can deal with an incomplete RPC call', () => {
+  it('can deal with an incomplete RPC call', async () => {
+    const queueName = 'q-worker-incomplete-rpc';
     var connected = new Connected();
-    var worker = new Worker('test_worker', exchange);
+    var worker = new Worker(queueName, exchange);
     var replyQueue = uuid();
     var messageId = uuid();
 
-    return Promise.all([ connected.init, worker.init ]).then(() => {
-      return connected.consumeAsPromise(replyQueue, () => {
-        return connected.publishAsJson(
-          '',
-          'test_worker',
-          {
-          },
-          {
-            messageId: messageId,
-            replyTo: replyQueue
-          }
-        );
-      });
-    }).then(msg => {
-      var reply = json.fromBuffer(msg.content);
+    await Promise.all([ connected.init, worker.init ]);
 
-      assert.equal(reply.error.code, -32600);
-      assert.equal(reply.error.message, 'Invalid request: Missing or invalid "jsonrpc" property');
-      assert.equal(reply.id, messageId);
-    });
+    return connected.publishAsJson(
+      '',
+      queueName,
+      {
+      },
+      {
+        messageId: messageId,
+        replyTo: replyQueue
+      }
+    );
+
+    var msg = await connected.consumeAsPromise(replyQueue);
+
+    var reply = json.fromBuffer(msg.content);
+
+    assert.equal(reply.error.code, -32600);
+    assert.equal(reply.error.message, 'Invalid request: Missing or invalid "jsonrpc" property');
+    assert.equal(reply.id, messageId);
   });
 
   it('can deal with an RPC call missing a method', () => {
