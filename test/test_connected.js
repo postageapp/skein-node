@@ -17,21 +17,21 @@ const { WritableArray } = require('./support');
 describe('Connected', () => {
   describe('open()', () => {
     it('will permit waiting for full initialization', async() => {
-      var connected = await Connected.open();
+      let connected = await Connected.open();
 
       assert.ok(connected.channel);
     });
   });
 
   it('can provide a default configuration', async () => {
-    var connected = await Connected.open();
+    let connected = await Connected.open();
 
     assert.ok(connected.channel);
   });
 
   it('can create, check and delete queues', async () => {
     const queueName = 'q-connected-create-queues';
-    var connected = await Connected.open();
+    let connected = await Connected.open();
 
     await connected.assertQueue(queueName);
 
@@ -43,14 +43,14 @@ describe('Connected', () => {
 
   it('provides a simple stream interface for reading', async () => {
     const streamName = 'q-connected-read-stream';
-    var connected = await Connected.open();
+    let connected = await Connected.open();
 
     await connected.assertQueue(streamName);
 
-    var buffer = new WritableArray();
+    let buffer = new WritableArray();
 
-    var readable = await connected.readStream(streamName);
-    var readableData = helpers.eventCounter(readable, 'data');
+    let readable = await connected.readStream(streamName);
+    let readableData = helpers.eventCounter(readable, 'data');
     readable.pipe(buffer);
 
     connected.publishAsJson('', streamName, { stream: 'read' });
@@ -59,22 +59,22 @@ describe('Connected', () => {
 
     assert.equal(1, buffer.length);
 
-    var read = buffer.pop();
+    let read = buffer.pop();
 
     assert.deepEqual({ stream: 'read' }, read);
   });
 
   it('provides a simple stream interface for writing', async () => {
     const streamName = 'q-connected-write-stream';
-    var connected = await Connected.open();
+    let connected = await Connected.open();
 
     await connected.assertQueue(streamName);
 
-    var writable = await connected.writeStream(streamName);
-    var readable = await connected.readStream(streamName);
+    let writable = await connected.writeStream(streamName);
+    let readable = await connected.readStream(streamName);
 
-    var readableData = helpers.eventCounter(readable, 'data');
-    var buffer = new WritableArray();
+    let readableData = helpers.eventCounter(readable, 'data');
+    let buffer = new WritableArray();
     readable.pipe(buffer);
 
     writable.write({ stream: 'write' });
@@ -83,7 +83,7 @@ describe('Connected', () => {
 
     assert.equal(1, buffer.length);
 
-    var read = buffer.pop();
+    let read = buffer.pop();
 
     assert.deepEqual({ stream: 'write' }, read);
   });

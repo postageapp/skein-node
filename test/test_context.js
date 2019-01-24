@@ -10,7 +10,7 @@ const Context = require('../lib/context');
 
 describe('Context', () => {
   it('can work with defaults', () => {
-    var context = new Context();
+    let context = new Context();
 
     assert.ok(context);
 
@@ -20,9 +20,9 @@ describe('Context', () => {
   });
 
   it('consistently issues ident values', () => {
-    var context = new Context();
+    let context = new Context();
 
-    var idents = [
+    let idents = [
       context.ident(),
       context.ident()
     ];
@@ -31,7 +31,7 @@ describe('Context', () => {
   });
 
   it('consistently issues unique ident values per-context', () => {
-    var idents = [
+    let idents = [
       new Context().ident(),
       new Context().ident()
     ];

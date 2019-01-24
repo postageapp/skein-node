@@ -12,14 +12,14 @@ const Config = require('../lib/config');
 
 describe('rabbitmq', () => {
   describe('connect()', () => {
-    it('can connect to the default server', () => {
-      var config = new Config();
+    it('can connect to the default server', async () => {
+      let config = new Config();
 
       assert.ok(config.driver);
 
-      return rabbitmq.connect(config).then((conn) => {
-        assert.ok(conn);
-      });
+      let conn = await rabbitmq.connect(config);
+
+      assert.ok(conn);
     });
   });
 });

@@ -23,28 +23,28 @@ const exchange = 'test_exchange';
 
 describe('Worker', () => {
   it('can be created with a simple subclass (EchoWorker)', async () => {
-    var client = new Client();
+    let client = new Client();
 
-    var worker = client.worker('test_echo_worker', exchange, client, EchoWorker);
-    var rpc = client.rpc(exchange, 'test_echo_worker');
+    let worker = client.worker('test_echo_worker', exchange, client, EchoWorker);
+    let rpc = client.rpc(exchange, 'test_echo_worker');
 
     await Promise.all([ worker.init, rpc.init ]);
 
-    var reply = await rpc.echo('with test data');
+    let reply = await rpc.echo('with test data');
 
     assert.equal(reply, 'with test data');
   });
 
   it('can deal with malformed JSON data', async () => {
     const queueName = 'q-worker-malformed-json';
-    var connected = new Connected();
-    var worker = new Worker(queueName, exchange);
-    var replyQueue = uuid();
-    var messageId = uuid();
+    let connected = new Connected();
+    let worker = new Worker(queueName, exchange);
+    let replyQueue = uuid();
+    let messageId = uuid();
 
     await Promise.all([ connected.init, worker.init ]);
 
-    var response = connected.consumeAsPromise(replyQueue);
+    let response = connected.consumeAsPromise(replyQueue);
 
     connected.channel.publish(
       '',
@@ -58,9 +58,9 @@ describe('Worker', () => {
       }
     );
 
-    var msg = await response;
+    let msg = await response;
 
-    var reply = json.fromBuffer(msg.content);
+    let reply = json.fromBuffer(msg.content);
 
     assert.equal(reply.error.code, -32700);
     assert.equal(reply.error.message, 'Invalid JSON data');
@@ -69,10 +69,10 @@ describe('Worker', () => {
 
   it('can deal with an incomplete RPC call', async () => {
     const queueName = 'q-worker-incomplete-rpc';
-    var connected = new Connected();
-    var worker = new Worker(queueName, exchange);
-    var replyQueue = uuid();
-    var messageId = uuid();
+    let connected = new Connected();
+    let worker = new Worker(queueName, exchange);
+    let replyQueue = uuid();
+    let messageId = uuid();
 
     await Promise.all([ connected.init, worker.init ]);
 
@@ -87,9 +87,9 @@ describe('Worker', () => {
       }
     );
 
-    var msg = await connected.consumeAsPromise(replyQueue);
+    let msg = await connected.consumeAsPromise(replyQueue);
 
-    var reply = json.fromBuffer(msg.content);
+    let reply = json.fromBuffer(msg.content);
 
     assert.equal(reply.error.code, -32600);
     assert.equal(reply.error.message, 'Invalid request: Missing or invalid "jsonrpc" property');
@@ -97,10 +97,10 @@ describe('Worker', () => {
   });
 
   it('can deal with an RPC call missing a method', () => {
-    var connected = new Connected();
-    var worker = new Worker('test_worker', exchange);
-    var replyQueue = uuid();
-    var messageId = uuid();
+    let connected = new Connected();
+    let worker = new Worker('test_worker', exchange);
+    let replyQueue = uuid();
+    let messageId = uuid();
 
     return Promise.all([ connected.init, worker.init ]).then(() => {
       return connected.consumeAsPromise(replyQueue, () => {
@@ -118,7 +118,7 @@ describe('Worker', () => {
         );
       });
     }).then(msg => {
-      var reply = json.fromBuffer(msg.content);
+      let reply = json.fromBuffer(msg.content);
 
       assert.equal(reply.error.code, -32600);
       assert.equal(reply.error.message, 'Invalid request: Missing or invalid "method" property');
@@ -127,10 +127,10 @@ describe('Worker', () => {
   });
 
   it('catches errors triggered within the worker code', () => {
-    var connected = new Connected();
-    var worker = new ErrorWorker('test_error_worker', exchange);
-    var replyQueue = uuid();
-    var messageId = uuid();
+    let connected = new Connected();
+    let worker = new ErrorWorker('test_error_worker', exchange);
+    let replyQueue = uuid();
+    let messageId = uuid();
 
     return Promise.all([ connected.init, worker.init ]).then(() => {
       return connected.consumeAsPromise(replyQueue, () => {
@@ -149,7 +149,7 @@ describe('Worker', () => {
         );
       });
     }).then(msg => {
-      var reply = json.fromBuffer(msg.content);
+      let reply = json.fromBuffer(msg.content);
 
       assert.equal(reply.error.code, -32603);
       assert.equal(reply.error.message, 'Internal error when handling "error"');
