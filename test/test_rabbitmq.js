@@ -20,6 +20,8 @@ describe('rabbitmq', () => {
       let conn = await rabbitmq.connect(config);
 
       assert.ok(conn);
+
+      conn.close();
     });
   });
 });

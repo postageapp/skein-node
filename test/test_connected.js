@@ -20,6 +20,8 @@ describe('Connected', () => {
       let connected = await Connected.open();
 
       assert.ok(connected.channel);
+
+      connected.close();
     });
   });
 
@@ -27,6 +29,8 @@ describe('Connected', () => {
     let connected = await Connected.open();
 
     assert.ok(connected.channel);
+
+    connected.close();
   });
 
   it('can create, check and delete queues', async () => {
@@ -38,7 +42,9 @@ describe('Connected', () => {
     assert.ok(connected.checkQueue(queueName));
 
     // Unconsumed queues are not auto-deleted, so a force-delete is required.
-    connected.deleteQueue(queueName);
+    await connected.deleteQueue(queueName);
+
+    connected.close();
   })
 
   it('provides a simple stream interface for reading', async () => {
@@ -62,6 +68,8 @@ describe('Connected', () => {
     let read = buffer.pop();
 
     assert.deepEqual({ stream: 'read' }, read);
+
+    connected.close();
   });
 
   it('provides a simple stream interface for writing', async () => {
@@ -86,5 +94,7 @@ describe('Connected', () => {
     let read = buffer.pop();
 
     assert.deepEqual({ stream: 'write' }, read);
+
+    connected.close();
   });
 });

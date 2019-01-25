@@ -38,6 +38,8 @@ describe('Conduit', () => {
       assert.deepEqual({ test: true }, received);
 
       readable.destroy();
+
+      connected.close();
     });
   });
 
@@ -68,6 +70,10 @@ describe('Conduit', () => {
       let received = buffer.pop();
 
       assert.deepEqual({ test: true }, received);
+
+      readable.destroy();
+      writable.destroy();
+      connected.close();
     });
   });
 });

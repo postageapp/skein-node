@@ -15,8 +15,8 @@ describe('Client', () => {
     await client.init;
 
     assert.ok(client);
-
-    client.close();
+    
+    await client.close();
   });
 
   describe('rpc()', () => {
@@ -27,10 +27,11 @@ describe('Client', () => {
 
       let rpc = client.rpc('test-exchange');
 
-      await client.init;
+      await rpc.init;
 
       assert.ok(rpc);
 
+      rpc.close();
       client.close();
     });
   });
@@ -43,11 +44,12 @@ describe('Client', () => {
 
       let worker = client.worker('test-exchange');
 
-      await client.init;
+      await worker.init;
 
       assert.ok(worker);
 
+      worker.close();
       client.close();
     });
-  })
+  });
 });
