@@ -90,6 +90,9 @@ describe('Worker', () => {
     let replyQueue = uuid();
     let messageId = uuid();
 
+    // Listener must be engaged first.
+    let msg = connected.consumeAsPromise(replyQueue);
+
     await connected.publishAsJson(
       exchange,
       queueName,
@@ -101,7 +104,8 @@ describe('Worker', () => {
       }
     );
 
-    let msg = await connected.consumeAsPromise(replyQueue);
+    // Message will arrive after publishAsJson is called.
+    msg = await msg;
 
     let reply = json.fromBuffer(msg.content);
 

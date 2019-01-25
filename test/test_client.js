@@ -4,6 +4,8 @@ const Client = require('../lib/client');
 
 // == Constants =============================================================
 
+const exchange = 'test_exchange';
+
 // == Support ===============================================================
 
 // == Tests =================================================================
@@ -11,7 +13,6 @@ const Client = require('../lib/client');
 describe('Client', () => {
   it('can be created with defaults', async () => {
     let client = new Client();
-
     await client.init;
 
     assert.ok(client);
@@ -22,11 +23,9 @@ describe('Client', () => {
   describe('rpc()', () => {
     it('can create an RPC client', async () => {
       let client = new Client();
-
       await client.init;
 
-      let rpc = client.rpc('test-exchange');
-
+      let rpc = client.rpc(exchange);
       await rpc.init;
 
       assert.ok(rpc);
@@ -39,11 +38,9 @@ describe('Client', () => {
   describe('worker()', () => {
     it('can create a generic worker instance', async () => {
       let client = new Client();
-
       await client.init;
 
-      let worker = client.worker('test-exchange');
-
+      let worker = client.worker(exchange);
       await worker.init;
 
       assert.ok(worker);
