@@ -12,7 +12,7 @@ const Config = require('../lib/config');
 
 describe('Config', () => {
   it('can provide a default configuration', () => {
-    var config = new Config();
+    let config = new Config();
 
     assert.ok(config);
 
@@ -21,9 +21,9 @@ describe('Config', () => {
   });
 
   it('can read an arbitrary JSON file', () => {
-    var configPath = path.resolve(__dirname, './data/skein-example.json');
+    let configPath = path.resolve(__dirname, './data/skein-example.json');
 
-    var config = new Config(configPath);
+    let config = new Config(configPath);
 
     assert.ok(config);
 
@@ -36,7 +36,7 @@ describe('Config', () => {
   });
 
   it('can properly URI encode with a minimal config', () => {
-    var config = new Config({ });
+    let config = new Config({ });
 
     assert.equal(config.uri(), 'amqp://localhost/');
 
@@ -44,9 +44,9 @@ describe('Config', () => {
   })
 
   it('can properly URI encode values in configuration', () => {
-    var configPath = path.resolve(__dirname, './data/skein-encoding-example.json');
+    let configPath = path.resolve(__dirname, './data/skein-encoding-example.json');
 
-    var config = new Config(configPath);
+    let config = new Config(configPath);
 
     assert.ok(config);
 
@@ -56,7 +56,7 @@ describe('Config', () => {
   });
 
   it('has a configuration file it can read', () => {
-    var configPath = path.resolve(__dirname, './data/skein-example.json');
+    let configPath = path.resolve(__dirname, './data/skein-example.json');
 
     assert.isTrue(Config.exist(configPath));
     assert.isTrue(Config.exist());

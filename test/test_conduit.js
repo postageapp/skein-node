@@ -17,11 +17,11 @@ describe('Conduit', () => {
   describe('Readable', () => {
     it('can be initialized with a valid Connected object', async () => {
       const streamName = 'q-readable-test';
-      var connected = await Connected.open();
+      let connected = await Connected.open();
 
-      var readable = new Readable(connected, streamName);
-      var readableData = helpers.eventCounter(readable, 'data');
-      var buffer = new WritableArray();
+      let readable = new Readable(connected, streamName);
+      let readableData = helpers.eventCounter(readable, 'data');
+      let buffer = new WritableArray();
 
       await readable.init;
 
@@ -33,26 +33,28 @@ describe('Conduit', () => {
 
       assert.equal(1, buffer.length);
 
-      var received = buffer.pop();
+      let received = buffer.pop();
 
       assert.deepEqual({ test: true }, received);
 
       readable.destroy();
+
+      connected.close();
     });
   });
 
   describe('Writable', () => {
     it('can be initialized with a valid Connected object', async () => {
       const streamName = 'q-writable-test';
-      var connected = await Connected.open();
+      let connected = await Connected.open();
 
       await connected.assertQueue(streamName);
 
-      var writable = new Writable(connected, streamName);
-      var readable = new Readable(connected, streamName);
+      let writable = new Writable(connected, streamName);
+      let readable = new Readable(connected, streamName);
 
-      var readableData = helpers.eventCounter(readable, 'data');
-      var buffer = new WritableArray();
+      let readableData = helpers.eventCounter(readable, 'data');
+      let buffer = new WritableArray();
 
       await writable.init;
       await readable.init;
@@ -65,9 +67,13 @@ describe('Conduit', () => {
 
       assert.equal(1, buffer.length);
 
-      var received = buffer.pop();
+      let received = buffer.pop();
 
       assert.deepEqual({ test: true }, received);
+
+      readable.destroy();
+      writable.destroy();
+      connected.close();
     });
   });
 });

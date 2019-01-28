@@ -23,28 +23,37 @@ const exchange = 'test_exchange';
 
 describe('Worker', () => {
   it('can be created with a simple subclass (EchoWorker)', async () => {
-    var client = new Client();
+    let client = new Client();
+    await client.init;
 
-    var worker = client.worker('test_echo_worker', exchange, client, EchoWorker);
-    var rpc = client.rpc(exchange, 'test_echo_worker');
+    let worker = client.worker('test_echo_worker', exchange, client, EchoWorker);
+    await worker.init;
 
-    await Promise.all([ worker.init, rpc.init ]);
+    let rpc = client.rpc(exchange, 'test_echo_worker');
+    await rpc.init;
 
-    var reply = await rpc.echo('with test data');
+    let reply = await rpc.echo('with test data');
 
     assert.equal(reply, 'with test data');
+
+    worker.close();
+    rpc.close();
+    client.close();
   });
 
   it('can deal with malformed JSON data', async () => {
     const queueName = 'q-worker-malformed-json';
-    var connected = new Connected();
-    var worker = new Worker(queueName, exchange);
-    var replyQueue = uuid();
-    var messageId = uuid();
 
-    await Promise.all([ connected.init, worker.init ]);
+    let connected = new Connected();
+    await connected.init;
 
-    var response = connected.consumeAsPromise(replyQueue);
+    let worker = new Worker(queueName, exchange);
+    let replyQueue = uuid();
+    let messageId = uuid();
+
+    await worker.init;
+
+    let response = connected.consumeAsPromise(replyQueue);
 
     connected.channel.publish(
       '',
@@ -58,26 +67,34 @@ describe('Worker', () => {
       }
     );
 
-    var msg = await response;
+    let msg = await response;
 
-    var reply = json.fromBuffer(msg.content);
+    let reply = json.fromBuffer(msg.content);
 
     assert.equal(reply.error.code, -32700);
     assert.equal(reply.error.message, 'Invalid JSON data');
     assert.equal(reply.id, messageId);
+
+    connected.close();
+    worker.close();
   });
 
   it('can deal with an incomplete RPC call', async () => {
     const queueName = 'q-worker-incomplete-rpc';
-    var connected = new Connected();
-    var worker = new Worker(queueName, exchange);
-    var replyQueue = uuid();
-    var messageId = uuid();
+    let connected = new Connected();
+    await connected.init;
 
-    await Promise.all([ connected.init, worker.init ]);
+    let worker = new Worker(queueName, exchange);
+    await worker.init;
 
-    return connected.publishAsJson(
-      '',
+    let replyQueue = uuid();
+    let messageId = uuid();
+
+    // Listener must be engaged first.
+    let msg = connected.consumeAsPromise(replyQueue);
+
+    await connected.publishAsJson(
+      exchange,
       queueName,
       {
       },
@@ -87,73 +104,86 @@ describe('Worker', () => {
       }
     );
 
-    var msg = await connected.consumeAsPromise(replyQueue);
+    // Message will arrive after publishAsJson is called.
+    msg = await msg;
 
-    var reply = json.fromBuffer(msg.content);
+    let reply = json.fromBuffer(msg.content);
 
     assert.equal(reply.error.code, -32600);
     assert.equal(reply.error.message, 'Invalid request: Missing or invalid "jsonrpc" property');
     assert.equal(reply.id, messageId);
+
+    worker.close();
+    connected.close();
   });
 
-  it('can deal with an RPC call missing a method', () => {
-    var connected = new Connected();
-    var worker = new Worker('test_worker', exchange);
-    var replyQueue = uuid();
-    var messageId = uuid();
+  it('can deal with an RPC call missing a method', async () => {
+    let connected = new Connected();
+    await connected.init;
+    
+    let worker = new Worker('test_worker', exchange);
+    await worker.init;
 
-    return Promise.all([ connected.init, worker.init ]).then(() => {
-      return connected.consumeAsPromise(replyQueue, () => {
-        return connected.publishAsJson(
-          '',
-          'test_worker',
-          {
-            "jsonrpc": "2.0",
-            "id": messageId
-          },
-          {
-            messageId: messageId,
-            replyTo: replyQueue
-          }
-        );
-      });
-    }).then(msg => {
-      var reply = json.fromBuffer(msg.content);
+    let replyQueue = uuid();
+    let messageId = uuid();
 
-      assert.equal(reply.error.code, -32600);
-      assert.equal(reply.error.message, 'Invalid request: Missing or invalid "method" property');
-      assert.equal(reply.id, messageId);
+    let msg = await connected.consumeAsPromise(replyQueue, () => {
+      return connected.publishAsJson(
+        '',
+        'test_worker',
+        {
+          "jsonrpc": "2.0",
+          "id": messageId
+        },
+        {
+          messageId: messageId,
+          replyTo: replyQueue
+        }
+      );
     });
+
+    let reply = json.fromBuffer(msg.content);
+
+    assert.equal(reply.error.code, -32600);
+    assert.equal(reply.error.message, 'Invalid request: Missing or invalid "method" property');
+    assert.equal(reply.id, messageId);
+
+    connected.close();
+    worker.close();
   });
 
-  it('catches errors triggered within the worker code', () => {
-    var connected = new Connected();
-    var worker = new ErrorWorker('test_error_worker', exchange);
-    var replyQueue = uuid();
-    var messageId = uuid();
+  it('catches errors triggered within the worker code', async () => {
+    let connected = new Connected();
+    let worker = new ErrorWorker('test_error_worker', exchange);
+    let replyQueue = uuid();
+    let messageId = uuid();
 
-    return Promise.all([ connected.init, worker.init ]).then(() => {
-      return connected.consumeAsPromise(replyQueue, () => {
-        return connected.publishAsJson(
-          '',
-          'test_error_worker',
-          {
-            "jsonrpc": "2.0",
-            "id": messageId,
-            "method": "error"
-          },
-          {
-            messageId: messageId,
-            replyTo: replyQueue
-          }
-        );
-      });
-    }).then(msg => {
-      var reply = json.fromBuffer(msg.content);
+    await connected.init;
+    await worker.init;
 
-      assert.equal(reply.error.code, -32603);
-      assert.equal(reply.error.message, 'Internal error when handling "error"');
-      assert.equal(reply.id, messageId);
+    let msg = await connected.consumeAsPromise(replyQueue, () => {
+      return connected.publishAsJson(
+        '',
+        'test_error_worker',
+        {
+          "jsonrpc": "2.0",
+          "id": messageId,
+          "method": "error"
+        },
+        {
+          messageId: messageId,
+          replyTo: replyQueue
+        }
+      );
     });
+
+    let reply = json.fromBuffer(msg.content);
+
+    assert.equal(reply.error.code, -32603);
+    assert.equal(reply.error.message, 'Internal error when handling "error"');
+    assert.equal(reply.id, messageId);
+
+    worker.close();
+    connected.close();
   });
 });

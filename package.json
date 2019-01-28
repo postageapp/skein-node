@@ -1,6 +1,6 @@
 {
   "name": "skein-rpc",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "Client library for doing JSON-RPC over RabbitMQ/AMQP",
   "main": "index.js",
   "scripts": {
@@ -23,15 +23,15 @@
   },
   "homepage": "https://github.com/postageapp/skein-node#readme",
   "devDependencies": {
-    "chai": "^4.1.2",
-    "mocha": "^4.0.1"
+    "chai": "^4.2.0",
+    "mocha": "^5.2.0"
   },
   "dependencies": {
-    "amqplib": "^0.5.2",
-    "bluebird": "^3.5.1",
-    "commander": "^2.12.2",
-    "merge": "^1.2.0",
+    "amqplib": "^0.5.3",
+    "bluebird": "^3.5.3",
+    "commander": "^2.19.0",
+    "merge": "^1.2.1",
     "sprintf": "^0.1.5",
-    "uuid": "^3.1.0"
+    "uuid": "^3.3.2"
   }
 }

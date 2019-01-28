@@ -13,16 +13,23 @@ const EchoWorker = require('./examples/echo_worker');
 
 describe('RPC', () => {
   it('can be created with defaults', async () => {
-    var client = new Client();
-    var worker = new EchoWorker('test_echo_rpc', 'test_exchange', client);
+    let client = new Client();
+    
+    await client.init;
 
-    var rpc = new RPC('test_exchange', 'test_echo_rpc', client);
+    let worker = new EchoWorker('test_echo_rpc', '', client);
+
+    let rpc = new RPC('', 'test_echo_rpc', client);
 
     await rpc.init;
     await worker.init;
 
-    var response = await rpc.echo('test');
+    let response = await rpc.echo('test');
 
     assert.equal(response, 'test');
+
+    rpc.close();
+    worker.close();
+    client.close();
   });
 });
