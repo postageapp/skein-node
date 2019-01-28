@@ -31,7 +31,7 @@
     "bluebird": "^3.5.3",
     "commander": "^2.19.0",
     "merge": "^1.2.1",
-    "sprintf": "^0.1.5",
+    "sprintf-js": "^1.1.2",
     "uuid": "^3.3.2"
   }
 }
